@@ -28,24 +28,24 @@
     </script>
     <script>
         let draw = (target, data) => {
-            var ctx = document.getElementById(target);
-            var myChart = new Chart(ctx, {
+            let ctx = document.getElementById(target);
+            let myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['8月1日', '8月2日', '8月3日', '8月4日', '8月5日', '8月6日', '8月7日'],
+                    labels: data.label,
                     datasets: [
                         {
-                            label: '最高気温(度）',
-                            data: [35, 34, 37, 35, 34, 35, 34, 25],
+                            label: '心拍',
+                            data: data.data,
                             borderColor: "rgba(255,0,0,1)",
                             backgroundColor: "rgba(0,0,0,0)"
                         },
-                        {
-                            label: '最低気温(度）',
-                            data: [25, 27, 27, 25, 26, 27, 25, 21],
-                            borderColor: "rgba(0,0,255,1)",
-                            backgroundColor: "rgba(0,0,0,0)"
-                        }
+                        // {
+                        //     label: '最低気温(度）',
+                        //     data: [25, 27, 27, 25, 26, 27, 25, 21],
+                        //     borderColor: "rgba(0,0,255,1)",
+                        //     backgroundColor: "rgba(0,0,0,0)"
+                        // }
                     ],
                 },
                 options: {
@@ -69,11 +69,27 @@
             });
         }
     </script>
+    <script>
+        let get_draw = async () => {
+            let json_data = await input_json("file")
+            let heartratedata = json_data.exercises[0].samples.heartRate
+            let label = []
+            let hearrate = []
+            for (hr of heartratedata) {
+                if (hr.value === undefined)
+                    continue;
+                label.push(hr.dateTime)
+                hearrate.push(hr.value)
+            }
+            let data = {label, data: hearrate}
+            draw("hr",data)
+        }
+    </script>
 </head>
 <body>
 <h1>It works!</h1>
 <input type="file" id="file">
-<canvas id="myChart"></canvas>
+<canvas id="hr"></canvas>
 
 </body>
 </html>
