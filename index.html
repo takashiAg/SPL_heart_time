@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+    　　　　　　　　
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
 
     <script>
         let input_json = target_id => new Promise((resolve, reject) => {
@@ -24,9 +26,70 @@
             reader.readAsText(fileData);
         })
     </script>
+    <script>
+        let draw = (target, data) => {
+            let ctx = document.getElementById(target);
+            let myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.label,
+                    datasets: [
+                        {
+                            label: '心拍',
+                            data: data.data,
+                            borderColor: "rgba(255,0,0,1)",
+                            backgroundColor: "rgba(0,0,0,0)"
+                        },
+                        // {
+                        //     label: '最低気温(度）',
+                        //     data: [25, 27, 27, 25, 26, 27, 25, 21],
+                        //     borderColor: "rgba(0,0,255,1)",
+                        //     backgroundColor: "rgba(0,0,0,0)"
+                        // }
+                    ],
+                },
+                options: {
+                    title: {
+                        display: true,
+                        text: 'ああああ'
+                    },
+                    // scales: {
+                    //     yAxes: [{
+                    //         ticks: {
+                    //             suggestedMax: 40,
+                    //             suggestedMin: 0,
+                    //             stepSize: 10,
+                    //             callback: function (value, index, values) {
+                    //                 return value + '度'
+                    //             }
+                    //         }
+                    //     }]
+                    // },
+                }
+            });
+        }
+    </script>
+    <script>
+        let get_draw = async () => {
+            let json_data = await input_json("file")
+            let heartratedata = json_data.exercises[0].samples.heartRate
+            let label = []
+            let hearrate = []
+            for (hr of heartratedata) {
+                if (hr.value === undefined)
+                    continue;
+                label.push(hr.dateTime)
+                hearrate.push(hr.value)
+            }
+            let data = {label, data: hearrate}
+            draw("hr",data)
+        }
+    </script>
 </head>
 <body>
 <h1>It works!</h1>
 <input type="file" id="file">
+<canvas id="hr"></canvas>
+
 </body>
 </html>
