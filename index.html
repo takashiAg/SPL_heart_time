@@ -3,8 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title></title>
+
+    <script>
+        let input_json = target_id => new Promise((resolve, reject) => {
+            let fileinput = document.getElementById(target_id);
+            if (fileinput == null)
+                reject("cant find element");
+
+            let fileData = file.files[0]
+            if (fileData === undefined)
+                reject("no file")
+
+            if (!fileData.type.match('application.json'))
+                reject("file type error");
+
+            let reader = new FileReader();
+            reader.onload = () => {
+                resolve(JSON.parse(reader.result));
+            }
+            reader.readAsText(fileData);
+        })
+    </script>
 </head>
 <body>
 <h1>It works!</h1>
+<input type="file" id="file">
 </body>
 </html>
