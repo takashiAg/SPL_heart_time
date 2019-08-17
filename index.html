@@ -36,16 +36,16 @@
                     datasets: [
                         {
                             label: '心拍',
-                            data: data.data,
+                            data: data.data.heartrate,
                             borderColor: "rgba(255,0,0,1)",
                             backgroundColor: "rgba(0,0,0,0)"
                         },
-                        // {
-                        //     label: '最低気温(度）',
-                        //     data: [25, 27, 27, 25, 26, 27, 25, 21],
-                        //     borderColor: "rgba(0,0,255,1)",
-                        //     backgroundColor: "rgba(0,0,0,0)"
-                        // }
+                        {
+                            label: 'r-r時間[秒]',
+                            data: data.data.rr_time,
+                            borderColor: "rgba(0,0,255,1)",
+                            backgroundColor: "rgba(0,0,0,0)"
+                        }
                     ],
                 },
                 options: {
@@ -70,27 +70,63 @@
         }
     </script>
     <script>
-        let get_draw = async () => {
-            let json_data = await input_json("file")
+        let get_heartratedata = async (json_data) => {
             let heartratedata = json_data.exercises[0].samples.heartRate
+            let data = {
+                label: [],
+                data: []
+            }
+            for (hr of heartratedata) {
+                if (hr.value === undefined)
+                    continue;
+                data.label.push(hr.dateTime)
+                data.data.push(hr.value)
+            }
+            return data;
+        }
+
+        let get_rr_time = async (json_data) => {
+            let heartratedata = json_data.exercises[0].samples.heartRate
+            let data = {
+                label: [],
+                data: []
+            }
             let label = []
             let hearrate = []
             for (hr of heartratedata) {
                 if (hr.value === undefined)
                     continue;
-                label.push(hr.dateTime)
-                hearrate.push(hr.value)
+                data.label.push(hr.dateTime)
+                data.data.push(60 / hr.value * 1000)
             }
-            let data = {label, data: hearrate}
-            draw("hr",data)
+            return data;
+        }
+        let get_draw = async () => {
+            let json_data = await input_json("file")
+            let heartrate = await get_heartratedata(json_data);
+            let rr_time = await get_rr_time(json_data);
+            let data = {
+                label: heartrate.label,
+                data: {
+                    heartrate: heartrate.data,
+                    rr_time: rr_time.data,
+                }
+            }
+            console.log(data)
+            draw("hr", data)
         }
     </script>
 </head>
 <body>
-<h1>It works!</h1>
-<input type="file" id="file">
-<button onclick="get_draw()">グラフ化する</button>
-<canvas id="hr"></canvas>
+<div>
+    <input type="file" id="file">
+</div>
+<div>
+    <button onclick="get_draw()">グラフ化する</button>
+</div>
+<div>
+    <canvas id="hr"></canvas>
+</div>
 
 </body>
 </html>
